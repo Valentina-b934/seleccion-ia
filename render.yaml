@@ -1,0 +1,37 @@
+# Despliegue en Render (plan gratuito) con Blueprint: New > Blueprint > elegir este repositorio.
+# Las variables con "sync: false" se escriben a mano en el panel de Render (nunca en el código).
+services:
+  - type: web
+    name: seleccion-ia
+    runtime: docker
+    plan: free
+    healthCheckPath: /_salud
+    envVars:
+      - key: DATABASE_URL          # cadena de conexión de Neon (PostgreSQL gratuito)
+        sync: false
+      - key: SESION_SECRETO
+        generateValue: true
+      - key: COOKIE_SEGURA
+        value: "true"
+      - key: LLM_PROVIDERS
+        value: openrouter,gemini,groq
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: openrouter/free
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: CLAVE_ADMIN
+        sync: false
+      - key: CLAVE_RECLUTADOR
+        sync: false
+      - key: CLAVE_CONSULTA
+        sync: false
+      - key: OCR_IDIOMAS
+        value: spa+eng
