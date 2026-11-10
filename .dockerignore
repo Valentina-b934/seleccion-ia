@@ -1,0 +1,10 @@
+.venv
+venv
+.env
+data
+__pycache__
+*.pyc
+.pytest_cache
+.git
+evaluacion/fotos_reales
+resultados_evaluacion.*

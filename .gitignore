@@ -1,0 +1,18 @@
+# Claves y datos: nunca al repositorio
+.env
+data/
+evaluacion/fotos_reales/
+resultados_evaluacion.*
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Sistema
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
