@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Selección de personal</title>
+  <meta name="description" content="Carga hojas de vida, revisa el puntaje de la IA y pregunta sobre los candidatos.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232340e0'/%3E%3Ccircle cx='21' cy='16' r='5' fill='white'/%3E%3Crect x='5' y='14.5' width='12' height='3' rx='1.5' fill='white' opacity='.55'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-inner">
+      <div>
+        <h1>Selección de personal</h1>
+        <p class="lead">Carga hojas de vida, revisa el puntaje que asignó la IA y pregunta lo que necesites sobre los candidatos.</p>
+      </div>
+      <p class="conn" id="conn" data-estado="comprobando" role="status">
+        <span class="dot" aria-hidden="true"></span><span id="connTexto">Comprobando el servidor…</span>
+      </p>
+    </div>
+    <nav class="wrap tabs" role="tablist" aria-label="Secciones del panel">
+      <button type="button" role="tab" id="tab-cargar" aria-controls="panel-cargar" aria-selected="true">Cargar</button>
+      <button type="button" role="tab" id="tab-candidatos" aria-controls="panel-candidatos" aria-selected="false" tabindex="-1">Candidatos <span class="badge" id="badge" hidden>0</span></button>
+      <button type="button" role="tab" id="tab-asistente" aria-controls="panel-asistente" aria-selected="false" tabindex="-1">Asistente</button>
+      <button type="button" role="tab" id="tab-ejecuciones" aria-controls="panel-ejecuciones" aria-selected="false" tabindex="-1" hidden>Ejecuciones</button>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <!-- ───────────── Cargar ───────────── -->
+    <section id="panel-cargar" role="tabpanel" aria-labelledby="tab-cargar">
+      <form id="formCargar" novalidate>
+        <div class="field narrow">
+          <label for="cargo">Cargo al que aplican</label>
+          <select id="cargo"></select>
+        </div>
+
+        <div class="field">
+          <span class="label">Hojas de vida (PDF) o fotos de formularios (JPG, PNG)</span>
+          <div class="drop" id="drop" tabindex="0" role="button" aria-describedby="dropAyuda">
+            <p class="drop-titulo">Arrastra los archivos aquí o haz clic para elegirlos</p>
+            <p class="drop-ayuda" id="dropAyuda"></p>
+            <input type="file" id="archivos" multiple hidden>
+          </div>
+          <div class="camara">
+            <button type="button" class="btn ghost" id="btnCamara">Tomar foto con la cámara</button>
+            <input type="file" id="camara" accept="image/*" capture="environment" hidden>
+            <span class="drop-ayuda">En el celular abre la cámara. Foto de frente, con buena luz y sin sombras.</span>
+          </div>
+          <p class="aviso error" id="avisoArchivos" role="alert" hidden></p>
+          <ul class="files" id="listaArchivos"></ul>
+          <button type="button" class="btn ghost" id="btnQuitarEnviados" hidden>Quitar los ya enviados</button>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="autorizacion">
+          <span>Los candidatos autorizaron el tratamiento de sus datos personales (Ley 1581 de 2012).</span>
+        </label>
+
+        <p class="nota">Usa solo datos de prueba. Los PDF se leen en el servidor y a un modelo de IA gratuito (OpenRouter, Groq o Gemini) solo llega su texto con correo, teléfono, documento, dirección y nombre ocultos. Las fotos se leen en el servidor con OCR local: a la IA solo llega el texto con correo, teléfono, documento, dirección y nombre ocultos. Si la lectura no es segura, te pedimos revisar los datos antes de guardar.</p>
+
+        <div class="acciones">
+          <button type="submit" class="btn primary" id="btnEnviar" disabled>Enviar hojas de vida</button>
+          <p class="resumen" id="resumenEnvio" role="status"></p>
+        </div>
+      </form>
+    </section>
+
+    <!-- ───────────── Candidatos ───────────── -->
+    <section id="panel-candidatos" role="tabpanel" aria-labelledby="tab-candidatos" hidden>
+      <div class="barra">
+        <div class="field">
+          <label for="buscar">Buscar</label>
+          <input type="search" id="buscar" placeholder="Nombre, habilidad, profesión…" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="filtroCargo">Cargo</label>
+          <select id="filtroCargo"><option value="">Todos</option></select>
+        </div>
+        <div class="field">
+          <label for="orden">Ordenar por</label>
+          <select id="orden">
+            <option value="puntaje">Mayor puntaje</option>
+            <option value="reciente">Más recientes</option>
+            <option value="nombre">Nombre</option>
+          </select>
+        </div>
+        <button type="button" class="btn ghost" id="btnActualizar">Actualizar</button>
+      </div>
+
+      <div class="leyenda" aria-hidden="true">
+        <span class="chip" data-zona="alto">80 o más: entrevista</span>
+        <span class="chip" data-zona="medio">60 a 79: revisión manual</span>
+        <span class="chip" data-zona="bajo">menos de 60: archivar</span>
+      </div>
+
+      <section class="pendientes" id="pendientes" hidden aria-labelledby="pendTitulo">
+        <h2 id="pendTitulo">Fotos esperando revisión humana</h2>
+        <p class="nota">La IA no estuvo segura de estas lecturas. Una persona confirma o corrige los datos antes de crear el candidato.</p>
+        <ul class="pend-lista" id="listaPendientes"></ul>
+      </section>
+
+      <p class="aviso error" id="avisoCandidatos" role="alert" hidden></p>
+      <p class="conteo" id="conteo" role="status"></p>
+      <ul class="cands" id="listaCandidatos"></ul>
+      <div class="vacio" id="vacio" hidden>
+        <p class="vacio-titulo">Aún no hay candidatos</p>
+        <p>Carga una hoja de vida en la pestaña Cargar y aparecerá aquí con su puntaje.</p>
+      </div>
+    </section>
+
+    <!-- ───────────── Asistente ───────────── -->
+    <section id="panel-asistente" role="tabpanel" aria-labelledby="tab-asistente" hidden>
+      <div class="chat">
+        <div class="mensajes" id="mensajes" aria-live="polite">
+          <div class="msg bot"><p>Soy el asistente de selección. Respondo con los datos de los candidatos guardados en la tabla. Recuerdo las últimas preguntas de esta conversación, así que puedes decir «y él» o «el anterior». Usa «Nueva conversación» para empezar de cero.</p></div>
+        </div>
+        <div class="sugerencias" id="sugerencias"></div>
+        <form class="entrada" id="formChat">
+          <label for="pregunta" class="sr">Tu pregunta</label>
+          <textarea id="pregunta" rows="2" placeholder="Ej.: ¿Quién tiene más experiencia en SQL?" maxlength="600"></textarea>
+          <button type="submit" class="btn primary" id="btnPreguntar">Preguntar</button>
+        </form>
+        <p class="nota">La decisión final es de una persona de Recursos Humanos. El puntaje es una estimación automática.</p>
+        <button type="button" class="btn ghost" id="btnNuevaConversacion">Nueva conversación</button>
+      </div>
+    </section>
+    <!-- ───────────── Ejecuciones (solo admin) ───────────── -->
+    <section id="panel-ejecuciones" role="tabpanel" aria-labelledby="tab-ejecuciones" hidden>
+      <div class="barra">
+        <div class="field">
+          <label for="filtroFlujo">Flujo</label>
+          <select id="filtroFlujo">
+            <option value="">Todos</option>
+            <option value="carga">carga (PDF)</option>
+            <option value="vision">vision (foto)</option>
+            <option value="vision_confirmar">vision_confirmar</option>
+            <option value="vision_rechazar">vision_rechazar</option>
+            <option value="chat">chat</option>
+            <option value="lista">lista</option>
+            <option value="resumen_diario">resumen_diario</option>
+            <option value="reintento_vision">reintento_vision</option>
+            <option value="supresion">supresion</option>
+          </select>
+        </div>
+        <button type="button" class="btn ghost" id="btnEjecuciones">Actualizar</button>
+        <button type="button" class="btn ghost" id="btnResumen">Enviar resumen ahora</button>
+        <button type="button" class="btn ghost" id="btnReintentar">Reintentar fotos sin IA</button>
+      </div>
+      <p class="conteo" id="conteoEjecuciones" role="status"></p>
+      <div class="tabla"><table>
+        <thead><tr><th>Fecha (UTC)</th><th>Flujo</th><th>Resultado</th><th>ms</th><th>Usuario</th><th>Entrada</th><th>Salida o error</th></tr></thead>
+        <tbody id="filasEjecuciones"></tbody>
+      </table></div>
+    </section>
+  </main>
+
+  
+  <dialog id="dlgRevision" aria-labelledby="revTitulo">
+    <form method="dialog" id="formRevision" novalidate>
+      <header class="rev-cab">
+        <h2 id="revTitulo">Revisa los datos leídos de la foto</h2>
+        <p class="rev-sub" id="revSub"></p>
+      </header>
+      <div class="rev-cuerpo">
+        <figure class="rev-foto">
+          <img id="revImagen" alt="Foto subida del formulario">
+          <figcaption>Compara con lo que se leyó. La foto se borra si descartas la lectura.</figcaption>
+        </figure>
+        <div class="rev-campos">
+          <ul class="rev-motivos" id="revMotivos"></ul>
+          <div id="revCampos"></div>
+          <p class="aviso error" id="revError" role="alert" hidden></p>
+        </div>
+      </div>
+      <footer class="rev-pie">
+        <button type="button" class="btn ghost" id="revDespues">Revisar después</button>
+        <button type="button" class="btn ghost peligro" id="revDescartar">Descartar lectura</button>
+        <button type="button" class="btn primary" id="revConfirmar">Confirmar y guardar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script src="/_sesion/sesion.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
