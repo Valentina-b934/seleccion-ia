@@ -1,0 +1,7 @@
+archivo,nombre,correo,cargo,profesion,experiencia_anios,habilidades,educacion,certificaciones
+simulada_01.jpg,Valentina Ríos Cárdenas,valentina.rios@correo.com,Analista de datos,Estadística,3,"Python, SQL, Power BI, Excel","Estadística, Universidad Nacional",Google Data Analytics
+simulada_02.jpg,Juan Camilo Ortiz,jc.ortiz@correo.com,Desarrollador de software,Ingeniero de sistemas,5,"Java, Spring Boot, Docker, PostgreSQL","Ingeniería de Sistemas, UTP",Oracle Java SE 11
+simulada_03.jpg,Luisa Fernanda Mejía,luisa.mejia@correo.com,Auxiliar administrativo,Técnica en gestión administrativa,2,"Excel, atención al cliente, archivo, facturación",Técnico SENA en gestión administrativa,No indica
+simulada_04.jpg,Santiago Herrera Duque,s.herrera@correo.com,Técnico de soporte,Tecnólogo en redes,4,"Windows Server, redes, soporte técnico, Linux","Tecnología en Redes, SENA",CCNA
+simulada_05.jpg,Daniela Castaño Gil,daniela.castano@correo.com,Contador,Contadora pública,6,"NIIF, Siigo, impuestos, nómina","Contaduría Pública, Universidad del Quindío",Revisoría fiscal
+simulada_06.jpg,Mateo Giraldo Pérez,mateo.giraldo@correo.com,Asesor comercial,Administrador de empresas,1,"Ventas, negociación, CRM, servicio al cliente","Administración de Empresas, UCP",No indica
