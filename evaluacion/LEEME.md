@@ -33,7 +33,8 @@ En iPhone: Ajustes > Cámara > Formatos > «Más compatible» (JPG). Pasen las f
    - `habilidades`: separadas por comas.
    - `certificaciones` o `educacion` vacías: escriban `No indica`.
 
-`fotos_reales/` está en `.gitignore` para no subir las fotos al repositorio.
+Las fotos, `etiquetas.csv` y los resultados **sí se suben al repositorio**: son la evidencia de la prueba con imágenes reales.
+Por eso las fichas deben llevar **solo datos inventados** (nunca datos reales de personas).
 
 ## 4. Ejecutar
 
@@ -60,6 +61,20 @@ Una foto rechazada por ilegible cuenta como error en todos sus campos.
 El informe también muestra **cuántas fotos fueron a revisión humana** y el dato más importante para la sustentación:
 **de las fotos que el sistema guardó solo, cuántas tenían todo correcto** (si se equivoca, ¿lo detecta?).
 Con esa cifra pueden ajustar `UMBRAL_OCR` y `UMBRAL_CAMPO` en `.env`.
+
+## 5. Subir la evidencia
+
+```powershell
+git add evaluacion/fotos_reales
+git commit -m "Evaluación con 20 fotos reales tomadas con celular"
+git push
+```
+
+Luego copien las tablas de `resultados_evaluacion.md` en la sección 5.2 de `docs/DOCUMENTO_TECNICO.md`.
+
+## archivos_demo/
+
+PDF y fotos de demostración para el video (ver su LEEME). No reemplazan las fotos reales.
 
 ## fotos_simuladas/
 
